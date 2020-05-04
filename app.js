@@ -183,8 +183,7 @@ async function combineTeam() {
 
     try {
         const managerData = await addManager();
-        //employees.push (new Manager (managerData.managerName, managerData.managerEmail, managerData.managerId, managerData.managerOfficeNumber));
-        const managerData = await (new Manager (managerData.managerName, managerData.managerEmail, managerData.managerId, managerData.managerOfficeNumber));
+        employees.push (new Manager (managerData.managerName, managerData.managerEmail, managerData.managerId, managerData.managerOfficeNumber));       
 
         do {
             const addEmployee = await employeeRole();
