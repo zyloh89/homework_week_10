@@ -10,14 +10,9 @@ const outputPath = path.join(OUTPUT_DIR, "team.html");
 
 const render = require("./lib/htmlRenderer");
 
-const teamEng = [];
-const arrayId = []; //check
-
-
 
 // Start application with collecting one manager information  
 function addManager () {
-    console.log ("Please build your engineering team")
     return inquirer.prompt ([
         {
             type: 'input',
@@ -47,7 +42,7 @@ function addManager () {
             name: 'managerId',
             message: "What is your manager's ID?",
             validate: function (input) {
-                const num = input.match(/^[0-9]$/);
+                const num = input.match(/^[0-9]+$/);
                 if(num) {
                     return true;
                 }
@@ -59,7 +54,7 @@ function addManager () {
             name: 'managerOfficeNumber',
             message: "What is your manager's office number?",
             validate: function (input) {
-                const num = input.match(/^[0-9]$/);
+                const num = input.match(/^[0-9]+$/);
                 if(num) {
                     return true;
                 }
@@ -67,13 +62,6 @@ function addManager () {
             } 
         },
     ])
-        /*push manager information into an array
-        .then(function (input) {
-            const manager = new Manager (input.managerName, input.managerEmail, input.managerId);
-            teamEng.push(manager);
-            arrayId.push(input.managerId);
-            createTeam();
-        });*/
 }
 // Add employee role type
 function employeeRole() {
@@ -87,8 +75,8 @@ function employeeRole() {
                 "Intern",
                 "I don't want to add any other team mambers"
             ]
-        }
-    ])
+        },
+    ]);
 }
 
 // Add engineer info
@@ -185,48 +173,54 @@ function addIntern () {
     ])
 }
 
-// Run async function to collect all information 
+// Run async function to collect all information, pushing employee and intern information into an array
 
 async function combineTeam() {
     console.log ("Please build your team");
+
     const employees = [];
-    const finalPrompt = false;
+    const endPrompt = false;
 
-    const managerData = await addManager();
-    employees.push (new Manager (managerData.managerName, managerData.managerEmail, managerData.managerId,  managerData.managerOfficeNumber));
+    try {
+        const managerData = await addManager();
+        //employees.push (new Manager (managerData.managerName, managerData.managerEmail, managerData.managerId, managerData.managerOfficeNumber));
+        const managerData = await (new Manager (managerData.managerName, managerData.managerEmail, managerData.managerId, managerData.managerOfficeNumber));
 
-    do {
-        const addEmployee = await employeeRole();
-
-        switch (`$(addEmployee.selection)`) {
-
-            case "Engineer":
-                const engineerData = await addEngineer();
-                employees.push (new Engineer (engineerData.engineerName, engineerData.engineerEmail, engineerData.engineerId, engineerData.engineerGithub));
-            break;
+        do {
+            const addEmployee = await employeeRole();
             
-            case "Intern":
-                const internData = await addIntern();
-                employees.push(new Intern(internData.internName, internData.internEmail, internData.internId, internData.internSchool));
-            break;
+            switch (`${addEmployee.selection}`) {
 
-            case "Final prompt":
-                finalPrompt = true;
-            break
+                case "Engineer":
+                    const engineerData = await addEngineer();
+                    employees.push (new Engineer (engineerData.engineerName, engineerData.engineerEmail, engineerData.engineerId, engineerData.engineerGithub));
+                break;
+                
+                case "Intern":
+                    const internData = await addIntern();
+                    employees.push(new Intern(internData.internName, internData.internEmail, internData.internId, internData.internSchool));
+                break;
+
+                case "End prompt":
+                    endPrompt = true;
+                break
+            }
         }
-    }
 
-    while (finalPrompt === false);
-    
-    const mainHtml = render (employees);
-    fs.writeFileSync(outputPath, mainHtml, function(err){
-        if(err){
-            return console.log(err);
-        }
-        console.log("Team roster generated");
-    });
+        while (endPrompt === false);
+            const mainhtml = render(employees);
+        fs.writeFileSync(outputPath, mainhtml, function(err){
+            if(err){
+                return console.log(err);
+            }
+            console.log("Team roster generated");
+        });
 
+    } catch (err) {
+        console.log(err);
+      }
 }
+
 
 //check if output folder exists (https://nodejs.org/api/fs.html#fs_fs_existssync_path)
 function checkOutputFolder() {
@@ -240,24 +234,4 @@ function checkOutputFolder() {
 }
 
 combineTeam();
-
-
-// After the user has input all employees desired, call the `render` function (required
-// above) and pass in an array containing all employee objects; the `render` function will
-// generate and return a block of HTML including templated divs for each employee!
-
-// After you have your html, you're now ready to create an HTML file using the HTML
-// returned from the `render` function. Now write it to a file named `team.html` in the
-// `output` folder. You can use the variable `outputPath` above target this location.
-// Hint: you may need to check if the `output` folder exists and create it if it
-// does not.
-
-// HINT: each employee type (manager, engineer, or intern) has slightly different
-// information; write your code to ask different questions via inquirer depending on
-// employee type.
-
-// HINT: make sure to build out your classes first! Remember that your Manager, Engineer,
-// and Intern classes should all extend from a class named Employee; see the directions
-// for further information. Be sure to test out each class and verify it generates an
-// object with the correct structure and methods. This structure will be crucial in order
-// for the provided `render` function to work! ```
+checkOutputFolder();
