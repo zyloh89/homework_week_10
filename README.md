@@ -1,7 +1,7 @@
 # Team Profile generator
 
 ## Description
-Week 10 homework was to create a CLi application that dynamically generates a README.md from a user's input. The README file can then be uploaded to be used in GitHub.
+Week 10 homework was to create a CLi application that generate a software engineering team with information about the team member and team members.
 
 
 ## Link to deployed code
